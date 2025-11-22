@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVL | HELL STORE</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Nosifer&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- 1. CORE VARIABLES & SETUP --- */
+        :root {
+            --blood: #e60000;
+            --blood-dark: #5c0000;
+            --fire: #ff4500;
+            --black: #050505;
+            /* Made card background transparent for the effect */
+            --card-bg: rgba(20, 0, 0, 0.6); 
+            --text-gray: #a0a0a0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--black);
+            color: white;
+            font-family: 'Roboto Condensed', sans-serif;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* --- 2. GLOBAL FIRE BACKGROUND ANIMATION --- */
+        /* This fixed element sits behind everything */
+        .fire-background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(to top, 
+                #000000 0%, 
+                #4a0000 40%, 
+                #800000 60%, 
+                #ff4500 80%,
+                #ffcc00 100%
+            );
+            background-size: 100% 300%;
+            animation: global-fire-rise 8s linear infinite;
+            opacity: 0.8; /* Slightly dimmed so text is readable */
+        }
+
+        @keyframes global-fire-rise {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 0% 50%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        /* --- MOUSE TRAIL PARTICLES --- */
+        .blood-drip {
+            position: fixed; width: 8px; height: 8px; background: var(--blood);
+            border-radius: 50%; pointer-events: none; z-index: 9999;
+            animation: drip-fall 1s forwards;
+        }
+        @keyframes drip-fall {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.5) translateY(50px); }
+        }
+
+        /* --- 3. HEADER (Transparent) --- */
+        header {
+            display: grid;
+            grid-template-columns: 1fr 120px 1fr;
+            align-items: center;
+            padding: 20px 50px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            /* Transparent gradient */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 100%);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Search Area */
+        .search-container { display: flex; align-items: center; gap: 10px; }
+        .bio-icon { width: 35px; height: 35px; fill: var(--blood); animation: spin-slow 10s linear infinite; }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        
+        .search-input {
+            background: rgba(0,0,0,0.5); border: none; border-bottom: 2px solid #333;
+            color: white; padding: 5px; font-family: 'Roboto Condensed'; font-size: 1rem; width: 150px; transition: 0.3s;
+        }
+        .search-input:focus { outline: none; border-bottom: 2px solid var(--blood); width: 220px; }
+
+        /* LOGO IMAGE */
+        .logo-container {
+            display: flex; justify-content: center; align-items: center;
+        }
+        .dvl-logo-img {
+            width: 110px; /* Adjusted size */
+            height: auto;
+            border-radius: 50%; /* Make it circular if needed, or remove */
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.4);
+            transition: 0.3s;
+        }
+        .dvl-logo-img:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+        }
+
+        /* Cart Nav */
+        .nav-right { justify-self: end; display: flex; gap: 25px; align-items: center; }
+        .cart-wrapper { position: relative; cursor: pointer; }
+        .cart-icon { font-size: 1.4rem; color: white; transition: 0.3s; }
+        .cart-count {
+            position: absolute; top: -8px; right: -10px; background: var(--blood);
+            color: black; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 50%;
+        }
+        .cart-wrapper:hover .cart-icon { color: var(--blood); }
+
+        /* --- 4. HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; z-index: 1;
+            padding-bottom: 50px;
+            /* Entrance Animation */
+            animation: fadeIn 2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .hell-text {
+            font-family: 'Nosifer', cursive; font-size: 6rem; text-align: center;
+            line-height: 1.1; text-transform: uppercase; color: transparent;
+            background-image: linear-gradient(to top, var(--fire) 0%, var(--blood) 40%, var(--blood-dark) 100%);
+            -webkit-background-clip: text; background-clip: text;
+            filter: drop-shadow(0 0 10px var(--blood-dark));
+            animation: heat-wave 2s infinite alternate;
+        }
+        @keyframes heat-wave {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--blood-dark)); }
+            100% { transform: scale(1.02); filter: drop-shadow(0 0 20px var(--fire)); }
+        }
+
+        /* Scroll Bars */
+        .scroll-wrapper {
+            position: absolute; bottom: 5%; width: 100%; height: 100px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 0; pointer-events: none;
+        }
+        .scroll-bar {
+            position: absolute; width: 120%; padding: 8px 0;
+            font-family: 'Roboto Condensed'; font-weight: 900; font-size: 1.2rem;
+            text-transform: uppercase; white-space: nowrap; display: flex; 
+            border-top: 2px solid black; border-bottom: 2px solid black;
+            /* Slight opacity for transparency */
+            opacity: 0.9;
+        }
+        .bar-1 { transform: rotate(-3deg); background: var(--blood); z-index: 2; color: black; }
+        .bar-2 { transform: rotate(3deg); background: rgba(255,255,255,0.9); z-index: 1; color: black; }
+        
+        .scroll-content { display: inline-block; animation: scroll-left 20s linear infinite; }
+        .scroll-content-reverse { display: inline-block; animation: scroll-right 20s linear infinite; }
+        .scroll-item { margin: 0 40px; }
+        @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes scroll-right { 0% { transform: translateX(-50%); } 100% { transform: translateX(0%); } }
+
+        /* --- 5. PRODUCTS SECTION --- */
+        .products-section {
+            position: relative;
+            z-index: 10;
+            padding: 80px 50px;
+            /* Transparent background to show fire */
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+        }
+
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-title { font-family: 'Metal Mania'; font-size: 3rem; color: var(--blood); text-shadow: 0 0 10px var(--blood-dark); }
+        
+        .filter-btns { margin-top: 20px; }
+        .filter-btn {
+            background: rgba(0,0,0,0.6); border: 1px solid #333; color: #888;
+            padding: 10px 25px; margin: 0 5px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active { border-color: var(--blood); color: var(--blood); background: rgba(50,0,0,0.6); }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Transparent Product Cards */
+        .product-card {
+            background: var(--card-bg); /* Semi-transparent variable */
+            border: 1px solid rgba(255, 69, 0, 0.2);
+            position: relative; overflow: hidden; transition: 0.3s;
+            backdrop-filter: blur(5px);
+            /* Initial State for Fade In */
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        /* Fade In Class */
+        .product-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, border-color 0.3s;
+        }
+
+        .product-card:hover { border-color: var(--blood); transform: translateY(-5px); box-shadow: 0 0 20px rgba(255, 69, 0, 0.3); }
+
+        .img-container {
+            height: 350px; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+            position: relative; overflow: hidden;
+        }
+        
+        .placeholder-shirt { font-size: 8rem; color: #333; transition: 0.3s; }
+        .product-card:hover .placeholder-shirt { color: var(--blood); transform: scale(1.1); filter: drop-shadow(0 0 10px var(--fire)); }
+
+        .card-details { padding: 20px; text-align: center; }
+        .product-name { font-weight: 700; font-size: 1.2rem; margin-bottom: 5px; text-transform: uppercase; text-shadow: 1px 1px 2px black; }
+        .product-price { color: var(--fire); font-family: 'Metal Mania'; font-size: 1.4rem; text-shadow: 1px 1px 2px black; }
+
+        .add-btn {
+            width: 100%; padding: 15px; border: none; background: rgba(0,0,0,0.8); color: white;
+            font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.3s;
+            margin-top: 15px; border: 1px solid #333;
+        }
+        .add-btn:hover { background: var(--blood); color: black; border-color: var(--blood); box-shadow: 0 0 15px var(--blood); }
+
+        /* --- 6. CART SIDEBAR --- */
+        .cart-sidebar {
+            position: fixed; top: 0; right: -400px; width: 350px; height: 100%;
+            background: rgba(5, 5, 5, 0.95); border-left: 1px solid #333; z-index: 2000;
+            padding: 20px; transition: 0.4s ease-in-out;
+            display: flex; flex-direction: column; backdrop-filter: blur(10px);
+        }
+        .cart-sidebar.open { right: 0; box-shadow: -10px 0 50px rgba(0,0,0,0.9); }
+
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+        .close-cart { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .close-cart:hover { color: var(--blood); }
+
+        .cart-items { flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        
+        .cart-footer { border-top: 1px solid #333; padding-top: 20px; }
+        .total-price { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; }
+        .checkout-btn { width: 100%; background: var(--blood); border: none; padding: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .checkout-btn:hover { background: var(--fire); }
+
+        /* --- 7. FOOTER (Transparent) --- */
+        footer {
+            background: rgba(0,0,0,0.8); border-top: 1px solid #222; padding: 60px 20px; text-align: center;
+            position: relative; z-index: 10; backdrop-filter: blur(5px);
+        }
+        .social-icons a { color: #555; margin: 0 10px; font-size: 1.2rem; transition: 0.3s; }
+        .social-icons a:hover { color: var(--blood); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; grid-template-columns: 50px 1fr 50px; }
+            .dvl-logo-img { width: 80px; }
+            .hell-text { font-size: 3rem; }
+            .search-input { display: none; } 
+            .bio-icon { display: block; }
+            .scroll-bar { font-size: 0.8rem; }
+            .cart-sidebar { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND CONTAINER -->
+    <div class="fire-background"></div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="search-container">
+            <svg class="bio-icon" viewBox="0 0 512 512">
+                <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 472c-119.3 0-216-96.7-216-216S136.7 40 256 40s216 96.7 216 216-96.7 216-216 216z"/>
+                <path d="M256 128l-3 5-64 111c-6 10-6 22 0 32l64 111 3 5 3-5 64-111c6-10 6-22 0-32l-64-111-3-5z"/>
+            </svg>
+            <input type="text" id="searchInput" class="search-input" placeholder="SEARCH CRYPT...">
+        </div>
+
+        <!-- NEW LOGO INSERTED -->
+        <a href="#" class="logo-container">
+            <img src="Gemini_Generated_Image_d6fxb0d6fxb0d6fx.jpg" alt="DVL Logo" class="dvl-logo-img">
+        </a>
+
+        <div class="nav-right">
+            <div class="cart-wrapper" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping cart-icon"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1 class="hell-text">WELCOME<br>TO HELL STORE</h1>
+        
+        <div class="scroll-wrapper">
+            <div class="scroll-bar bar-1">
+                <div class="scroll-content">
+                    <span class="scroll-item">PREMIUM HORROR</span><span class="scroll-item">DVL STREET</span><span class="scroll-item">NO SAVING</span><span class="scroll-item">EST. 2024</span><span class="scroll-item">HELL AWAITS</span><span class="scroll-item">PREMIUM HORROR</span><span class="scroll-item">DVL STREET</span><span class="scroll-item">NO SAVING</span>
+                </div>
+            </div>
+            <div class="scroll-bar bar-2">
+                <div class="scroll-content-reverse">
+                    <span class="scroll-item">NEW ARRIVALS</span><span class="scroll-item">SHOP NOW</span><span class="scroll-item">FRESH BLOOD</span><span class="scroll-item">LIMITED EDITION</span><span class="scroll-item">NEW ARRIVALS</span><span class="scroll-item">SHOP NOW</span><span class="scroll-item">FRESH BLOOD</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS SECTION -->
+    <section class="products-section" id="shop">
+        <div class="section-header">
+            <h2 class="section-title">THE CURSED COLLECTION</h2>
+            <div class="filter-btns">
+                <button class="filter-btn active" onclick="filterProducts('all')">All</button>
+                <button class="filter-btn" onclick="filterProducts('tee')">Tees</button>
+                <button class="filter-btn" onclick="filterProducts('hoodie')">Hoodies</button>
+            </div>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Products injected via JS -->
+        </div>
+    </section>
+
+    <!-- CART SIDEBAR -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3 style="font-family:'Metal Mania'; font-size:1.5rem; color:var(--blood);">YOUR LOOT</h3>
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <p style="color:#666; text-align:center; margin-top:50px;">Your soul is empty...</p>
+        </div>
+        <div class="cart-footer">
+            <div class="total-price">
+                <span>TOTAL</span>
+                <span id="cartTotal">$0.00</span>
+            </div>
+            <button class="checkout-btn" onclick="alert('Proceeding to Hell Gate (Checkout)...')">CHECKOUT</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="social-icons">
+            <a href="#"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+        <p style="color: #444; margin-top: 20px; font-size: 0.8rem;">© 2024 DVL STREET. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. PRODUCT DATA ---
+        const products = [
+            { id: 1, name: "Hellfire Tee", price: 35.00, category: "tee", icon: "fa-shirt" },
+            { id: 2, name: "Reaper Hoodie", price: 65.00, category: "hoodie", icon: "fa-user-secret" },
+            { id: 3, name: "Bleeding Heart Tee", price: 35.00, category: "tee", icon: "fa-heart-crack" },
+            { id: 4, name: "Demon Skull Hoodie", price: 70.00, category: "hoodie", icon: "fa-skull" },
+            { id: 5, name: "Cursed Sigil Tee", price: 40.00, category: "tee", icon: "fa-circle-radiation" },
+            { id: 6, name: "Void Walker Hoodie", price: 80.00, category: "hoodie", icon: "fa-ghost" }
+        ];
+
+        let cart = [];
+
+        // --- 2. RENDER PRODUCTS ---
+        const productGrid = document.getElementById('productGrid');
+
+        function renderProducts(filter = 'all') {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            productGrid.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchesCategory = filter === 'all' || p.category === filter;
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                productGrid.innerHTML = '<p style="color:#666; width:100%; text-align:center;">No cursed items found...</p>';
+                return;
+            }
+
+            filtered.forEach((product, index) => {
+                const div = document.createElement('div');
+                div.className = 'product-card';
+                // Delay animation slightly for stagger effect
+                div.style.transitionDelay = `${index * 150}ms`; 
+                div.innerHTML = `
+                    <div class="img-container">
+                        <i class="fa-solid ${product.icon} placeholder-shirt"></i>
+                    </div>
+                    <div class="card-details">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                        <button class="add-btn" onclick="addToCart(${product.id})">Add to Cart</button>
+                    </div>
+                `;
+                productGrid.appendChild(div);
+                
+                // Observe for scroll animation
+                observer.observe(div);
+            });
+        }
+
+        // --- 3. FILTER LOGIC ---
+        function filterProducts(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProducts(category);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            const activeBtn = document.querySelector('.filter-btn.active');
+            let cat = 'all';
+            if(activeBtn.innerText === 'Tees') cat = 'tee';
+            if(activeBtn.innerText === 'Hoodies') cat = 'hoodie';
+            renderProducts(cat);
+        });
+
+        // --- 4. CART LOGIC ---
+        function toggleCart() {
+            document.getElementById('cartSidebar').classList.toggle('open');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
+            updateCartUI();
+            
+            // Effect
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "ADDED!";
+            btn.style.background = "#e60000";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = "rgba(0,0,0,0.8)";
+            }, 1000);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.length;
+            const cartItemsContainer = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="color:#666; text-align:center; margin-top:50px;">Your soul is empty...</p>';
+                document.getElementById('cartTotal').innerText = "$0.00";
+                return;
+            }
+
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight:bold; color:white;">${item.name}</div>
+                        <div style="color:#888;">$${item.price.toFixed(2)}</div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#555; cursor:pointer;">&times;</button>
+                `;
+                cartItemsContainer.appendChild(div);
+            });
+            document.getElementById('cartTotal').innerText = "$" + total.toFixed(2);
+        }
+
+        // --- 5. SCROLL FADE-IN ANIMATION ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // --- 6. MOUSE TRAIL ANIMATION ---
+        document.addEventListener('mousemove', function(e) {
+            if (Math.random() < 0.3) return; 
+            const drop = document.createElement('div');
+            drop.className = 'blood-drip';
+            drop.style.left = e.clientX + 'px';
+            drop.style.top = e.clientY + 'px';
+            const size = Math.random() * 8 + 4;
+            drop.style.width = size + 'px';
+            drop.style.height = size + 'px';
+            document.body.appendChild(drop);
+            setTimeout(() => { drop.remove(); }, 1000);
+        });
+
+        // Init
+        renderProducts();
+
+    </script>
+</body>
+</html>
